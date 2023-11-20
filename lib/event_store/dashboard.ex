@@ -97,21 +97,17 @@ defmodule EventStore.Dashboard do
   end
 
   @impl PageBuilder
-  def render_page(assigns) do
+  def render(assigns) do
     if assigns[:error] do
       render_error(assigns)
     else
-      items =
-        for event_store <- assigns.event_stores do
-          {module, _opts} = event_store
-
-          {module,
-           name: inspect(module),
-           render: fn -> render_event_store_tab(event_store, assigns) end,
-           method: :patch}
-        end
-
-      nav_bar(items: items, nav_param: :eventstore, extra_params: [:nav], style: :bar)
+      ~H"""
+      <.live_nav_bar id="event-nav-bar-stores" page={@page} nav_param="eventstore" extra_params={["nav"]} style={:bar}>
+        <:item :for={event_store <- @event_stores} name={inspect(elem(event_store, 0))} label={inspect(elem(event_store, 0))}>
+          <.render_event_store_tab {assigns} />
+        </:item>
+      </.live_nav_bar>
+      """
     end
   end
 
@@ -174,30 +170,20 @@ defmodule EventStore.Dashboard do
     end
   end
 
-  defp render_event_store_tab(event_store, assigns) do
+  defp render_event_store_tab(assigns) do
     if assigns[:error] do
       render_error(assigns)
     else
-      nav_bar(
-        items: [
-          streams: [
-            name: "Streams",
-            render: fn -> StreamsTable.render(event_store, assigns) end
-          ],
-          events: [
-            name: "Events",
-            render: fn -> EventsTable.render(event_store, assigns) end
-          ]
-          # event: [
-          #   name: "Event",
-          #   render: fn -> EventInfo.render(event_store, assigns) end
-          # ]
-          # TODO: Subscriptions, snapshots
-        ],
-        nav_param: :nav,
-        extra_params: [:eventstore],
-        style: :pills
-      )
+      ~H"""
+      <.live_nav_bar id="event-nav-bar" page={@page} extra_params={["event_store"]} style={:pills}>
+        <:item name="streams">
+          <StreamsTable.render {assigns} />
+        </:item>
+        <:item name="events">
+          <EventsTable.render {assigns} />
+        </:item>
+      </.live_nav_bar>
+      """
     end
   end
 
@@ -232,15 +218,17 @@ defmodule EventStore.Dashboard do
           "Could not send request to node. Try again later."
       end
 
-    row(
-      components: [
-        columns(
-          components: [
-            card(value: error_message)
-          ]
-        )
-      ]
-    )
+    assigns = assigns |> assign(:error_message, error_message)
+
+    ~H"""
+    <.row>
+      <:col>
+        <.card title="Error">
+          <%= @error_message %>
+        </.card>
+      </:col>
+    </.row>
+    """
   end
 
   defp check_event_store_version(node) do

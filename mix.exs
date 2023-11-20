@@ -37,16 +37,15 @@ defmodule Eventstore.Dashboard.MixProject do
 
   defp deps do
     [
-      # {:eventstore, ">= 1.4.0"},
-      {:eventstore, github: "commanded/eventstore"},
-      {:jason, "~> 1.2", only: [:dev, :test, :docs]},
-      {:phoenix_live_dashboard, "~> 0.6"},
-      {:phoenix_live_reload, "~> 1.3", only: :dev},
-      {:plug_cowboy, "~> 2.5", only: :dev},
+      {:eventstore, "~> 1.4"},
+      {:jason, "~> 1.3", only: [:dev, :test, :docs]},
+      {:phoenix_live_dashboard, "~> 0.8.2"},
+      {:phoenix_live_reload, "~> 1.4", only: :dev},
+      {:plug_cowboy, "~> 2.6", only: :dev},
 
       # Development & test tools
-      {:ex_doc, "~> 0.25", only: :docs},
-      {:floki, "~> 0.32", only: :test}
+      {:ex_doc, "~> 0.30", only: :docs},
+      {:floki, "~> 0.35", only: :test}
     ]
   end
 
